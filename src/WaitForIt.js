@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
+import changeProps from 'react-change-props';
 import inlineScript from './inline-script.raw.js';
 
-export default class AppPreloader extends Component {
+export default class WaitForIt extends Component {
     state = {
-        renderScript: typeof window !== 'undefined' && !!window.__APP_PRELOADER__,
-        progress: typeof window !== 'undefined' && window.__APP_PRELOADER__ ? window.__APP_PRELOADER__.progress : 0,
+        renderScript: typeof window === 'undefined' || !!window.__WAIT_FOR_IT__,
+        progress: typeof window !== 'undefined' && window.__WAIT_FOR_IT__ ? window.__WAIT_FOR_IT__.progress : 0,
         error: undefined,
     };
 
@@ -16,9 +17,9 @@ export default class AppPreloader extends Component {
     progressDecayFn;
 
     componentDidMount() {
-        if (window.__APP_PRELOADER__) {
-            clearTimeout(window.__APP_PRELOADER__.intervalId);
-            delete window.__APP_PRELOADER__;
+        if (window.__WAIT_FOR_IT__) {
+            clearTimeout(window.__WAIT_FOR_IT__.intervalId);
+            delete window.__WAIT_FOR_IT__;
         }
 
         this.setStateThrottled = throttle(this.setState.bind(this), this.props.progressInterval, { leading: false });
@@ -53,6 +54,8 @@ export default class AppPreloader extends Component {
         const { renderScript, progress, error } = this.state;
         const { progressDecay, progressInterval, applyProgressBeforeInteractive, maxProgressBeforeInteractive, children } = this.props;
 
+        const returnedChildren = this.suppressHydrationWarnings(children({ progress, error }));
+
         return (
             <>
                 { renderScript && (
@@ -63,7 +66,7 @@ export default class AppPreloader extends Component {
                         data-progress-decay={ progressDecay && `return (${progressDecay})(time)` }
                         data-progress-interval={ progressInterval } />
                 ) }
-                { children({ progress, error }) }
+                { returnedChildren }
             </>
         );
     }
@@ -98,7 +101,10 @@ export default class AppPreloader extends Component {
                     this.setStateThrottled({ progress: this.normalizeProgress(progress) });
                 }));
             } else {
-                this.setStateThrottled({ progress: this.normalizeProgress(this.promise.progress) });
+                if (this.promise.progress != null) {
+                    this.setStateThrottled({ progress: this.normalizeProgress(this.promise.progress) });
+                }
+
                 this.promise.onProgress(maybe((progress) => {
                     this.setStateThrottled({ progress: this.normalizeProgress(progress) });
                 }));
@@ -129,17 +135,22 @@ export default class AppPreloader extends Component {
     normalizeProgress(progress) {
         const { maxProgressBeforeInteractive } = this.props;
 
-        // Normalize progress having into consideration the progress from before interactive and
-        // round it to 6 decimal places to circumvent issues with using floats with large decimals places in styles´
-        const truncatedProgress = Math.max(Math.min(progress, 1), 0);
-        const normalizedProgress = maxProgressBeforeInteractive + ((1 - maxProgressBeforeInteractive) * truncatedProgress);
+        // Normalize progress having into consideration the progress from before interactive, ensuring it is between 0 and 0.95
+        const normalizedProgress = maxProgressBeforeInteractive + ((1 - maxProgressBeforeInteractive) * progress);
         const roundedProgress = Math.round(normalizedProgress * (10 ** 6)) / (10 ** 6);
+        const truncatedProgress = Math.max(Math.min(roundedProgress, 0.95), 0);
 
-        return roundedProgress;
+        return truncatedProgress;
+    }
+
+    suppressHydrationWarnings(children) {
+        return changeProps(children, (child) =>
+            child.props['data-wait-for-it-element'] != null ? { suppressHydrationWarning: true } : {},
+        );
     }
 }
 
-AppPreloader.propTypes = {
+WaitForIt.propTypes = {
     children: PropTypes.func.isRequired,
     maxProgressBeforeInteractive: PropTypes.number,
     applyProgressBeforeInteractive: PropTypes.oneOfType([PropTypes.func, PropTypes.string]).isRequired,
@@ -149,8 +160,8 @@ AppPreloader.propTypes = {
     onDone: PropTypes.func,
 };
 
-AppPreloader.defaultProps = {
+WaitForIt.defaultProps = {
     progressInterval: 100,
-    progressDecay: /* istanbul ignore next */ (time) => Math.min(1 - Math.exp(-1 * time / 4000), 0.95),
+    progressDecay: /* istanbul ignore next */ (time) => 1 - Math.exp(-1 * time / 4000),
     maxProgressBeforeInteractive: 0.4,
 };

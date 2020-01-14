@@ -1,15 +1,15 @@
 {
-  "name": "react-app-preloader",
+  "name": "@moxy/react-wait-for-it",
   "version": "0.0.0",
   "description": "A React component and hook render children conditionally based on a promise state",
   "main": "lib/index.js",
   "module": "es/index.js",
-  "homepage": "https://github.com/moxystudio/react-app-preloader#readme",
+  "homepage": "https://github.com/moxystudio/react-wait-for-it#readme",
   "author": "André Cruz <andre@moxy.studio>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/moxystudio/react-app-preloader.git"
+    "url": "git+https://github.com/moxystudio/react-wait-for-it.git"
   },
   "keywords": [
     "react",
@@ -22,7 +22,7 @@
     "hook"
   ],
   "bugs": {
-    "url": "https://github.com/moxystudio/react-app-preloader/issues"
+    "url": "https://github.com/moxystudio/react-wait-for-it/issues"
   },
   "files": [
     "lib",
@@ -45,7 +45,8 @@
   },
   "dependencies": {
     "lodash": "^4.17.15",
-    "prop-types": "^15.7.2"
+    "prop-types": "^15.7.2",
+    "react-change-props": "^1.2.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",

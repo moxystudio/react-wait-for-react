@@ -9,10 +9,10 @@ const getCurrentScript = () => {
 };
 
 const getElements = () => {
-    const elementsArray = Array.prototype.slice.call(document.querySelectorAll('[data-wait-for-element-name]'));
+    const elementsArray = Array.prototype.slice.call(document.querySelectorAll('[data-wait-for-it-element]'));
 
     return elementsArray.reduce((elements, element) => {
-        elements[element.getAttribute('data-wait-for-element-name')] = element;
+        elements[element.getAttribute('data-wait-for-it-element')] = element;
 
         return elements;
     }, {});
@@ -39,7 +39,7 @@ const applyProgress = new Function(['elements', 'progress'], dataset.applyProgre
 const progressDecay = new Function(['time'], dataset.progressDecay);
 const progressInterval = parseInt(dataset.progressInterval, 10);
 
-window.__APP_PRELOADER__ = {
+window.__WAIT_FOR_IT__ = {
     elements: undefined,
     time: 0,
     progress: 0,
@@ -49,24 +49,21 @@ window.__APP_PRELOADER__ = {
 
 ready(() => {
     const fakeIncrement = () => {
-        window.__APP_PRELOADER__.time += progressInterval;
+        window.__WAIT_FOR_IT__.time += progressInterval;
 
-        const progress = progressDecay(window.__APP_PRELOADER__.time);
+        const progress = progressDecay(window.__WAIT_FOR_IT__.time);
 
-        // Normalize progress having into consideration the max progress and
-        // round it to 6 decimal places to circumvent issues with using floats with large decimals places in styles
-        const truncatedProgress = Math.max(Math.min(progress, 1), 0);
-        const normalizedProgress = maxProgress * truncatedProgress;
+        // Normalize progress having into consideration the max progress, ensuring it is between 0 and 95% of maxProgress
+        const normalizedProgress = maxProgress * progress;
         const roundedProgress = Math.round(normalizedProgress * (10 ** 6)) / (10 ** 6);
+        const truncatedProgress = Math.max(Math.min(roundedProgress, maxProgress * 0.95, 0));
 
-        window.__APP_PRELOADER__.progress = roundedProgress;
-        window.__APP_PRELOADER__.applyProgress(window.__APP_PRELOADER__.elements, roundedProgress);
+        window.__WAIT_FOR_IT__.progress = truncatedProgress;
+        window.__WAIT_FOR_IT__.applyProgress(window.__WAIT_FOR_IT__.elements, normalizedProgress);
     };
 
-    window.__APP_PRELOADER__.elements = getElements();
-    window.__APP_PRELOADER__.intervalId = setInterval(fakeIncrement, progressInterval);
-
-    console.log(window.__APP_PRELOADER__);
+    window.__WAIT_FOR_IT__.elements = getElements();
+    window.__WAIT_FOR_IT__.intervalId = setInterval(fakeIncrement, progressInterval);
 
     fakeIncrement();
 });

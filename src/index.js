@@ -1,1 +1,1 @@
-export { default } from './AppPreloader';
+export { default } from './WaitForIt';

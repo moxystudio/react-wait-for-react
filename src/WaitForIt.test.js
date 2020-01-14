@@ -4,19 +4,19 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import PProgress from 'p-progress';
-import AppPreloader from './AppPreloader';
+import WaitForIt from './WaitForIt';
 
 const defaultApplyProgressBeforeInteractive = jest.fn((elements, progress) => { elements.bar.style = `transform:scaleX(${progress})`; });
 const defaultChildren = jest.fn(({ progress }) => (
-    <div data-wait-for-element-name="bar" style={ { transform: `scaleX(${progress})` } } />
+    <div data-wait-for-it-element="bar" style={ { transform: `scaleX(${progress})` } } />
 ));
 
 const Tree = (props = {}) => (
-    <AppPreloader
+    <WaitForIt
         applyProgressBeforeInteractive={ defaultApplyProgressBeforeInteractive }
         { ...props }>
         { props.children || defaultChildren }
-    </AppPreloader>
+    </WaitForIt>
 );
 
 beforeAll(() => {
@@ -120,7 +120,8 @@ it('should report "fake" progress when promise does not have onProgress', async 
 
 it('should report promise progress when promise does have onProgress', async () => {
     const promise = new PProgress((resolve, reject, progress) => {
-        setTimeout(() => progress(0.1), 100);
+        setTimeout(() => progress(0.5), 100);
+        setTimeout(() => progress(0.8), 300);
         setTimeout(resolve, 500);
     });
 
@@ -130,13 +131,55 @@ it('should report promise progress when promise does have onProgress', async () 
             promise={ promise } />
     ));
 
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    await new Promise((resolve) => setTimeout(resolve, 450));
 
-    expect(defaultChildren).toHaveBeenCalledWith({ progress: 0.28, error: undefined });
+    expect(defaultChildren).toHaveBeenCalledWith({ progress: 0.6, error: undefined });
+    expect(defaultChildren).toHaveBeenCalledWith({ progress: 0.84, error: undefined });
 });
 
 it('should ignore progress report if promise fulfills', async () => {
+    const promise = Promise.resolve();
+
+    promise.onProgress = (fn) => {
+        setTimeout(() => fn(0.5), 100);
+        setTimeout(() => fn(0.6), 300);
+    };
+
+    render((
+        <Tree
+            maxProgressBeforeInteractive={ 0.2 }
+            promise={ promise } />
+    ));
+
     await new Promise((resolve) => setTimeout(resolve, 500));
+
+    expect(defaultChildren).not.toHaveBeenCalledWith({ progress: 0.6, error: undefined });
+    expect(defaultChildren.mock.calls[defaultChildren.mock.calls.length - 1][0]).toEqual({ progress: 1, error: undefined });
+});
+
+it('should truncate progress between 0 and 0.99', async () => {
+    const promise = new Promise(() => {});
+
+    promise.onProgress = (fn) => {
+        setTimeout(() => fn(-0.5), 100);
+        setTimeout(() => fn(1.5), 250);
+        setTimeout(() => fn(1), 400);
+    };
+
+    render((
+        <Tree
+            maxProgressBeforeInteractive={ 0.2 }
+            promise={ promise } />
+    ));
+
+    await new Promise((resolve) => setTimeout(resolve, 550));
+
+    const calledLowerThanZero = defaultChildren.mock.calls.some((call) => call[0].progress < 0);
+    const calledHigherThanOrEqualToOne = defaultChildren.mock.calls.some((call) => call[0].progress >= 1);
+
+    expect(calledLowerThanZero).toBe(false);
+    expect(calledHigherThanOrEqualToOne).toBe(false);
+    expect(defaultChildren).toHaveBeenCalledWith({ progress: 0.95, error: undefined });
 });
 
 describe('props change', () => {
@@ -207,12 +250,19 @@ describe('props change', () => {
 });
 
 describe('SSR', () => {
+    let windowSpy;
+
+    beforeEach(() => {
+        windowSpy = jest.spyOn(global, 'window', 'get');
+    });
+
     afterEach(() => {
-        delete window.__APP_PRELOADER__;
+        windowSpy.mockRestore();
+        delete window.__WAIT_FOR_IT__;
     });
 
     it('should render inline script in SSR with the correct data attributes', () => {
-        window.__APP_PRELOADER__ = {};
+        windowSpy.mockImplementation(() => undefined);
 
         const html = renderToString((
             <Tree
@@ -236,7 +286,7 @@ describe('SSR', () => {
     });
 
     it('should resume progress correctly', () => {
-        window.__APP_PRELOADER__ = {
+        window.__WAIT_FOR_IT__ = {
             progress: 0.22,
         };
 

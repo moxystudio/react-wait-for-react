@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import AppPreloader from 'react-app-preloader';
+import WaitForIt from '@moxy/react-wait-for-it';
 import './_app.css';
 
 const applyProgressBeforeInteractive = "function (elements, progress) { elements.progressBar.style = 'transform:scaleX(' + progress + ')' }";
@@ -14,19 +14,18 @@ const MyApp = ({ Component, pageProps }) => {
     return (
         <>
             { !loaded && (
-                <AppPreloader
+                <WaitForIt
                     applyProgressBeforeInteractive={ applyProgressBeforeInteractive }
                     promise={ promise }
                     onLoad={ onLoad }
                     progressInterval={ 200 }>
                     { ({ progress }) => (
                         <div
-                            data-wait-for-element-name="progressBar"
+                            data-wait-for-it-element="progressBar"
                             className="progress-bar"
-                            style={ { transform: `scaleX(${progress})` } }
-                            suppressHydrationWarning />
+                            style={ { transform: `scaleX(${progress})` } } />
                     ) }
-                </AppPreloader>
+                </WaitForIt>
             ) }
 
             { loaded && <Component { ...pageProps } /> }
