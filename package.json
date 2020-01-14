@@ -1,0 +1,73 @@
+{
+  "name": "react-app-preloader",
+  "version": "0.0.0",
+  "description": "A React component and hook render children conditionally based on a promise state",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "homepage": "https://github.com/moxystudio/react-app-preloader#readme",
+  "author": "André Cruz <andre@moxy.studio>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moxystudio/react-app-preloader.git"
+  },
+  "keywords": [
+    "react",
+    "promise",
+    "state",
+    "status",
+    "timeout",
+    "delay",
+    "suspense",
+    "hook"
+  ],
+  "bugs": {
+    "url": "https://github.com/moxystudio/react-app-preloader/issues"
+  },
+  "files": [
+    "lib",
+    "es"
+  ],
+  "scripts": {
+    "prebuild": "cpr src src-tmp -d && babel src/inline-script.raw.js -o src-tmp/inline-script.raw.js && terser -c -m -o src-tmp/inline-script.raw.js -- src-tmp/inline-script.raw.js",
+    "build:commonjs": "cross-env BABEL_ENV=commonjs babel src-tmp -d lib --delete-dir-on-start",
+    "build:es": "cross-env BABEL_ENV=es babel src-tmp -d es --delete-dir-on-start",
+    "build": "npm run build:commonjs && npm run build:es",
+    "postbuild": "rimraf src-tmp",
+    "test": "jest",
+    "lint": "eslint --ignore-path .gitignore .",
+    "prerelease": "npm t && npm run lint && npm run build",
+    "release": "standard-version",
+    "postrelease": "git push --follow-tags origin HEAD && npm publish"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.15",
+    "prop-types": "^15.7.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.4",
+    "@commitlint/config-conventional": "^8.0.0",
+    "@moxy/babel-preset": "^3.2.1",
+    "@moxy/eslint-config": "^10.0.0",
+    "@moxy/jest-config": "^1.2.0",
+    "@testing-library/react": "^9.0.0",
+    "babel-jest": "^24.5.0",
+    "babel-plugin-inline-import": "^3.0.0",
+    "commitlint": "^8.0.0",
+    "cpr": "^3.0.1",
+    "cross-env": "^6.0.3",
+    "eslint": "^6.0.0",
+    "husky": "^4.0.0",
+    "jest": "^24.5.0",
+    "lint-staged": "^9.0.0",
+    "p-progress": "^0.4.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "standard-version": "^7.0.0",
+    "terser": "^4.6.2"
+  }
+}

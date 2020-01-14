@@ -1,0 +1,25 @@
+{
+  "name": "demo",
+  "version": "0.0.0",
+  "description": "Demo website",
+  "main": "index.js",
+  "author": "André Cruz <andre@moxy.studio>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moxystudio/react-app-preloader.git"
+  },
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^9.1.7",
+    "p-props": "^3.1.0",
+    "prop-types": "^15.7.2",
+    "react": "^16.12.0",
+    "react-app-preloader": "file:..",
+    "react-dom": "^16.12.0"
+  }
+}
