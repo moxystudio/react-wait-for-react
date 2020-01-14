@@ -6,15 +6,12 @@ import { renderToString } from 'react-dom/server';
 import PProgress from 'p-progress';
 import WaitForIt from './WaitForIt';
 
-const defaultApplyProgressBeforeInteractive = jest.fn((elements, progress) => { elements.bar.style = `transform:scaleX(${progress})`; });
 const defaultChildren = jest.fn(({ progress }) => (
-    <div data-wait-for-it-element="bar" style={ { transform: `scaleX(${progress})` } } />
+    <div style={ { transform: `scaleX(${progress})` } } />
 ));
 
 const Tree = (props = {}) => (
-    <WaitForIt
-        applyProgressBeforeInteractive={ defaultApplyProgressBeforeInteractive }
-        { ...props }>
+    <WaitForIt { ...props }>
         { props.children || defaultChildren }
     </WaitForIt>
 );
@@ -279,8 +276,24 @@ describe('SSR', () => {
         expect(html).toContain(' data-progress-interval="1000"');
     });
 
-    it('should not render inline script when mounted', () => {
-        const { container } = render(<Tree />);
+    it('should not render inline script if before interactive related props are "disabled"', () => {
+        windowSpy.mockImplementation(() => undefined);
+
+        let html;
+
+        html = renderToString(<Tree />);
+
+        expect(html).not.toContain('<script');
+
+        html = renderToString(<Tree maxProgressBeforeInteractive={ 0 } />);
+
+        expect(html).not.toContain('<script');
+    });
+
+    it('should not render inline script when mounted', async () => {
+        const { container } = render(<Tree applyProgressBeforeInteractive={ () => {} } />);
+
+        await new Promise((resolve) => setTimeout(resolve, 150));
 
         expect(container.querySelector('script')).toBe(null);
     });

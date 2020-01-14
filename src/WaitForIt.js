@@ -2,19 +2,28 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 import changeProps from 'react-change-props';
-import inlineScript from './inline-script.raw.js';
+import script from './inline-script.raw.js';
 
 export default class WaitForIt extends Component {
-    state = {
-        renderScript: typeof window === 'undefined' || !!window.__WAIT_FOR_IT__,
-        progress: typeof window !== 'undefined' && window.__WAIT_FOR_IT__ ? window.__WAIT_FOR_IT__.progress : 0,
-        error: undefined,
-    };
+    state;
 
     time = 0;
     timeoutId;
     promise;
     progressDecayFn;
+
+    constructor(props) {
+        super(props);
+
+        const renderScript = this.props.maxProgressBeforeInteractive > 0 && !!this.props.applyProgressBeforeInteractive;
+        const progress = typeof window !== 'undefined' && window.__WAIT_FOR_IT__ ? window.__WAIT_FOR_IT__.progress : 0;
+
+        this.state = {
+            renderScript,
+            progress,
+            error: undefined,
+        };
+    }
 
     componentDidMount() {
         if (window.__WAIT_FOR_IT__) {
@@ -60,10 +69,10 @@ export default class WaitForIt extends Component {
             <>
                 { renderScript && (
                     <script
-                        dangerouslySetInnerHTML={ { __html: inlineScript } }
+                        dangerouslySetInnerHTML={ { __html: script } }
                         data-max-progress={ maxProgressBeforeInteractive }
-                        data-apply-progress={ applyProgressBeforeInteractive && `(${applyProgressBeforeInteractive})(elements, progress)` }
-                        data-progress-decay={ progressDecay && `return (${progressDecay})(time)` }
+                        data-apply-progress={ `(${applyProgressBeforeInteractive})(elements, progress)` }
+                        data-progress-decay={ `return (${progressDecay})(time)` }
                         data-progress-interval={ progressInterval } />
                 ) }
                 { returnedChildren }
@@ -153,7 +162,7 @@ export default class WaitForIt extends Component {
 WaitForIt.propTypes = {
     children: PropTypes.func.isRequired,
     maxProgressBeforeInteractive: PropTypes.number,
-    applyProgressBeforeInteractive: PropTypes.oneOfType([PropTypes.func, PropTypes.string]).isRequired,
+    applyProgressBeforeInteractive: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
     progressDecay: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
     progressInterval: PropTypes.number,
     promise: PropTypes.object,
