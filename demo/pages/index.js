@@ -27,7 +27,7 @@ const Home = () => {
             </WaitForReact>
 
             <p>The progress-bar will finish after 5 seconds.</p>
-            <p>You may also simulate a slower network in your browser&apos;s DevTool to increase TTI (time to interactive)</p>
+            <p>You may simulate a slower network in your browser&apos;s DevTool to increase TTI (time to interactive)</p>
 
             { loaded && <div>Load completed!</div> }
         </>

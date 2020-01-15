@@ -1,12 +1,12 @@
 # react-wait-for-react
 
-[![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][codecov-image]][codecov-url] [![Dependency status][david-dm-image]][david-dm-url] [![Dev Dependency status][david-dm-dev-image]][david-dm-dev-url]
+[![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Build Status][build-status-image]][build-status-url] [![Coverage Status][codecov-image]][codecov-url] [![Dependency status][david-dm-image]][david-dm-url] [![Dev Dependency status][david-dm-dev-image]][david-dm-dev-url]
 
 [npm-url]:https://npmjs.org/package/@moxy/react-wait-for-react
 [downloads-image]:https://img.shields.io/npm/dm/@moxy/react-wait-for-react.svg
 [npm-image]:https://img.shields.io/npm/v/@moxy/react-wait-for-react.svg
-[travis-url]:https://travis-ci.org/moxystudio/react-wait-for-react
-[travis-image]:https://img.shields.io/travis/moxystudio/react-wait-for-react/master.svg
+[build-status-url]:https://github.com/moxystudio/next-with-moxy/actions
+[build-status-image]:https://img.shields.io/github/workflow/status/moxystudio/next-with-moxy/Node%20CI/master
 [codecov-url]:https://codecov.io/gh/moxystudio/react-wait-for-react
 [codecov-image]:https://img.shields.io/codecov/c/github/moxystudio/react-wait-for-react/master.svg
 [david-dm-url]:https://david-dm.org/moxystudio/react-wait-for-react
