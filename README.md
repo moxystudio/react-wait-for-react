@@ -28,7 +28,7 @@ This library is written in modern JavaScript and is published in both CommonJS a
 
 Certain apps or pages have impactful experiences. These experiences can make the total bundle size larger as they pack possibly large dependencies and media assets, such as 3D objects and audio files.
 
-It's then often normal to preload all the required files for an uninterrupted experience. `@moxy/wait-for-react` is a library that makes it easy to display a loader before your static or server-side rendered app becomes interactive, and optionally until all the required files are loaded (via a promise).
+It's then often normal to preload all the required files for an uninterrupted experience. `@moxy/react-wait-for-react` is a library that makes it easy to display a loader before your static or server-side rendered app becomes interactive, and optionally until all the required files are loaded (via a promise).
 
 <img src="https://developers.google.com/web/fundamentals/performance/images/perf-metrics-load-timeline.png" alt="Performance metrics timeline" width="700" />
 
@@ -54,8 +54,9 @@ const preloadAssets = async () => {
 
 const MyPage = () => {
     const promise = useMemo(() => preloadAssets(), []);
-    const applyProgressBeforeInteractive = useCallback((elements, progress) =>
-        elements.progressBar.style.transform = `scaleX(${progress})`);
+    const applyProgressBeforeInteractive = `function (elements, progress) {
+        elements.progressBar.style.transform = 'scaleX(' + progress + ')';
+    }'`;
 
     return (
         <main>
@@ -101,10 +102,11 @@ A function in it's string form to update elements whenever `progress` changes.
 The `applyProgressBeforeInteractive` function signature is `(elements, progress) => {}`, where `elements` are DOM nodes that were tagged with `data-wait-for-react-element` attributes. Here's an example where we tag two different elements:
 
 ```js
-const applyProgressBeforeInteractive = (elements, progress) => {
+const applyProgressBeforeInteractive = `function (elements, progress) {
     // elements.foo
     // elements.bar
 };
+`
 
 const MyPage = () => (
     <WaitForReact
