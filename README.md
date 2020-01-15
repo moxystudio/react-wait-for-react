@@ -148,7 +148,7 @@ Default: 100
 
 The interval, in ms, to report progress. The value of `progressInterval` will effectively throttle all the internal behavior of `<WaitForReact>`, including the frequency in which the `children` render prop will be called.
 
-ℹ️ If you are using CSS transitions, the transition durations should be equal or smaller than `progressInterval`. This circumvents an issue in Chrome, Safari and other WebKit/Blink based browsers where updating a CSS property in the middle of a transition will cause the animation to "restart".
+ℹ️ If you are using CSS transitions, the transition durations should be equal or smaller than `progressInterval`. This circumvents an issue with several browsers, such as Chrome and Firefox, where updating a CSS property in the middle of a transition will cause the animation to "restart".
 
 ### promise
 
