@@ -32,7 +32,7 @@ It's then often normal to preload all the required files for an uninterrupted ex
 
 <img src="https://developers.google.com/web/fundamentals/performance/images/perf-metrics-load-timeline.png" alt="Performance metrics timeline" width="700" />
 
-⚠️ You should still render the app or page contents "below" the loader, so that your website is still SEO friendly.
+⚠️ You should still render the app or page contents "below" the loader, to keep your website SEO friendly.
 
 ## Demo
 
@@ -79,22 +79,24 @@ export default MyPage;
 
 ## API
 
-This package export a single component called `<WaitForReact>`, with the following props:
+This package exports a single component called `<WaitForReact>`, with the following props:
 
 ### maxProgressBeforeInteractive
 
 Type: `number`   
-Default: 0.4 if a `promise` is given, 1 otherwise
+Default: `0.4`
 
 The maximum value the progress can take before the app becomes interactive. Takes a value between 0 and 1 (exclusive).
 
 ### applyProgressBeforeInteractive
 
-Type: `string` or `Function` (*required*)
+Type: `string` (*required*)
 
-A function (or it's serializable form) to update elements whenever `progress` changes.
+A function in it's string form to update elements whenever `progress` changes.
 
-`<WaitForReact>` will call `applyProgressBeforeInteractive` **only** before your app becomes interactive. When React takes over, your app is became interactive and your `children` render prop will then be called as usual. Having that said, the function you supply must be serializable so that it can be part of an inline script included in your page HTML.
+`<WaitForReact>` will call `applyProgressBeforeInteractive` **only** before your app becomes interactive. When your app becomes interactive, React takes over and your `children` render prop will then be called as usual. To make this possible, `applyProgressBeforeInteractive` will be added in an inline script included as part SSR or static export.
+
+⚠️ The reason for this prop to be a string instead of a function has to do with compilation. Because server-side compilation usually differ from client-side compilation, the actual function in it's string form would be different and React would complain with a mismatch warning when rehydrating. Having that said, you should be careful in how you write this function so that it's compatible with all your target environments.
 
 The `applyProgressBeforeInteractive` function signature is `(elements, progress) => {}`, where `elements` are DOM nodes that were tagged with `data-wait-for-react-element` attributes. Here's an example where we tag two different elements:
 
@@ -126,14 +128,16 @@ const MyPage = () => (
 
 ### progressDecay
 
-Type: `Function<number>`   
-Default: `(time) => 1 - Math.exp(-1 * time / 4000)`
+Type: `string`   
+Default: `function (time) { return 1 - Math.exp(-1 * time / 4000); }`
 
-A function (or it's serilizable form) to calculate the progress value based on the elapsed time. Typically, the algorithm has a decay pattern, where increments are smaller and smaller as time passes by.
+A function in it's string form to calculate the progress value based on the elapsed time. Typically, the algorithm has a decay pattern, where increments are smaller and smaller as time passes by.
 
-`<WaitForReact>` will call `progressDecay` to simulate a "fake progress" until your app becomes interactive. Having that said, the function you supply must be serializable so that it can be part of an inline script included in your page HTML. Similarly, `<WaitForReact>` will call `progressDecay` to simulate a "fake progress" if a standard promise is passed as the `promise` prop.
+`<WaitForReact>` will call `progressDecay` to simulate a "fake progress" until your app becomes interactive. To make this possible, `progressDecay` will be added in an inline script included as part SSR or static export. Similarly, `<WaitForReact>` will call `progressDecay` to simulate a "fake progress" if a standard promise is passed as the `promise` prop.
 
-The `progressDecay` function signature is `(time) => <progress>`, where `time` is the elapsed time in milliseconds. It must return  `progress` in the form of a number between 0 and 1 (exclusive).
+⚠️ The reason for this prop to be a string instead of a function has to do with compilation. Because server-side compilation usually differ from client-side compilation, the actual function in it's string form would be different and React would complain with a mismatch warning when rehydrating. Having that said, you should be careful in how you write this function so that it's compatible with all your target environments.
+
+The `progressDecay` function signature is `(time) => <progress>`, where `time` is the elapsed time in milliseconds. It must return the `progress` value in the form of a number between 0 and 1 (exclusive).
 
 ### progressInterval
 
@@ -176,7 +180,6 @@ The `onDone` function signature is `(err) => {}`, where `error` is the error of 
 $ npm test
 $ npm test -- --watch # during development
 ```
-
 
 ## License
 

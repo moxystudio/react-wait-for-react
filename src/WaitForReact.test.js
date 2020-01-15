@@ -1,4 +1,4 @@
-/* eslint-disable react/jsx-no-bind, react/prop-types */
+/* eslint-disable react/jsx-no-bind, react/prop-types, no-template-curly-in-string */
 
 import React from 'react';
 import { render } from '@testing-library/react';
@@ -6,12 +6,15 @@ import { renderToString } from 'react-dom/server';
 import PProgress from 'p-progress';
 import WaitForReact from './WaitForReact';
 
+const defaultApplyProgressBeforeInteractive = '(elements, progress) => { elements.bar.style.transform = `scaleX(${progress})`; }';
 const defaultChildren = jest.fn(({ progress }) => (
-    <div style={ { transform: `scaleX(${progress})` } } />
+    <div data-wait-for-react-element="bar" style={ { transform: `scaleX(${progress})` } } />
 ));
 
 const Tree = (props = {}) => (
-    <WaitForReact { ...props }>
+    <WaitForReact
+        applyProgressBeforeInteractive={ defaultApplyProgressBeforeInteractive }
+        { ...props }>
         { props.children || defaultChildren }
     </WaitForReact>
 );
@@ -218,7 +221,7 @@ describe('props change', () => {
         rerender((
             <Tree
                 maxProgressBeforeInteractive={ 0.2 }
-                progressDecay={ () => 0.9 }
+                progressDecay="() => 0.9"
                 promise={ promise } />
         ));
 
@@ -264,34 +267,20 @@ describe('SSR', () => {
         const html = renderToString((
             <Tree
                 maxProgressBeforeInteractive={ 0.2 }
-                applyProgressBeforeInteractive={ () => 1 }
-                progressDecay={ () => 2 }
+                applyProgressBeforeInteractive="() => 1"
+                progressDecay="() => 2"
                 progressInterval={ 1000 } />
         ));
 
         expect(html).toContain('<script');
         expect(html).toContain(' data-max-progress="0.2"');
-        expect(html).toContain(' data-apply-progress="(() =&gt; 1)(elements, progress)"');
-        expect(html).toContain(' data-progress-decay="return (() =&gt; 2)(time)"');
+        expect(html).toContain(' data-apply-progress="() =&gt; 1"');
+        expect(html).toContain(' data-progress-decay="() =&gt; 2"');
         expect(html).toContain(' data-progress-interval="1000"');
     });
 
-    it('should not render inline script if before interactive related props are "disabled"', () => {
-        windowSpy.mockImplementation(() => undefined);
-
-        let html;
-
-        html = renderToString(<Tree />);
-
-        expect(html).not.toContain('<script');
-
-        html = renderToString(<Tree maxProgressBeforeInteractive={ 0 } />);
-
-        expect(html).not.toContain('<script');
-    });
-
     it('should not render inline script when mounted', async () => {
-        const { container } = render(<Tree applyProgressBeforeInteractive={ () => {} } />);
+        const { container } = render(<Tree />);
 
         await new Promise((resolve) => setTimeout(resolve, 150));
 
@@ -299,9 +288,10 @@ describe('SSR', () => {
     });
 
     it('should resume progress correctly', () => {
-        window.__WAIT_FOR_IT__ = {
+        window.__WAIT_FOR_IT__ = [{
             progress: 0.22,
-        };
+            intervalId: undefined,
+        }];
 
         render(<Tree />);
 

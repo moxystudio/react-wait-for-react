@@ -4,6 +4,9 @@ import { throttle } from 'lodash';
 import changeProps from 'react-change-props';
 import script from './inline-script.raw.js';
 
+const pickScriptState = () =>
+    typeof window !== 'undefined' && Array.isArray(window.__WAIT_FOR_IT__) ? window.__WAIT_FOR_IT__.shift() : undefined;
+
 export default class WaitForReact extends Component {
     state;
 
@@ -15,22 +18,21 @@ export default class WaitForReact extends Component {
     constructor(props) {
         super(props);
 
-        const renderScript = this.props.maxProgressBeforeInteractive > 0 && !!this.props.applyProgressBeforeInteractive;
-        const progress = typeof window !== 'undefined' && window.__WAIT_FOR_IT__ ? window.__WAIT_FOR_IT__.progress : 0;
+        // Resume inline script state
+        const scriptState = pickScriptState();
 
         this.state = {
-            renderScript,
-            progress,
+            renderScript: typeof window === 'undefined' || !!scriptState,
+            progress: scriptState?.progress ?? 0,
             error: undefined,
         };
+
+        if (scriptState) {
+            clearInterval(scriptState.intervalId);
+        }
     }
 
     componentDidMount() {
-        if (window.__WAIT_FOR_IT__) {
-            clearTimeout(window.__WAIT_FOR_IT__.intervalId);
-            delete window.__WAIT_FOR_IT__;
-        }
-
         this.setStateThrottled = throttle(this.setState.bind(this), this.props.progressInterval, { leading: false });
         this.progressDecayFn = new Function(['time'], `return (${this.props.progressDecay})(time)`);
 
@@ -71,8 +73,8 @@ export default class WaitForReact extends Component {
                     <script
                         dangerouslySetInnerHTML={ { __html: script } }
                         data-max-progress={ maxProgressBeforeInteractive }
-                        data-apply-progress={ `(${applyProgressBeforeInteractive})(elements, progress)` }
-                        data-progress-decay={ `return (${progressDecay})(time)` }
+                        data-apply-progress={ applyProgressBeforeInteractive }
+                        data-progress-decay={ progressDecay }
                         data-progress-interval={ progressInterval } />
                 ) }
                 { returnedChildren }
@@ -153,6 +155,8 @@ export default class WaitForReact extends Component {
     }
 
     suppressHydrationWarnings(children) {
+        // Suppress hydration warnings on elements tagged with `data-wait-for-react-element`
+        // This is needed because of spaces mismatches in style attributes
         return changeProps(children, (child) =>
             child.props['data-wait-for-react-element'] != null ? { suppressHydrationWarning: true } : {},
         );
@@ -162,8 +166,8 @@ export default class WaitForReact extends Component {
 WaitForReact.propTypes = {
     children: PropTypes.func.isRequired,
     maxProgressBeforeInteractive: PropTypes.number,
-    applyProgressBeforeInteractive: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-    progressDecay: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+    applyProgressBeforeInteractive: PropTypes.string.isRequired,
+    progressDecay: PropTypes.string,
     progressInterval: PropTypes.number,
     promise: PropTypes.object,
     onDone: PropTypes.func,
@@ -171,6 +175,6 @@ WaitForReact.propTypes = {
 
 WaitForReact.defaultProps = {
     progressInterval: 100,
-    progressDecay: /* istanbul ignore next */ (time) => 1 - Math.exp(-1 * time / 4000),
+    progressDecay: /* istanbul ignore next */ 'function (time) { return 1 - Math.exp(-1 * time / 4000); }',
     maxProgressBeforeInteractive: 0.4,
 };

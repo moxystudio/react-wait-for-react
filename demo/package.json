@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@moxy/react-wait-for-react": "file:..",
+    "classnames": "^2.2.6",
     "next": "^9.1.7",
     "react": "^16.12.0",
     "react-dom": "^16.12.0"
