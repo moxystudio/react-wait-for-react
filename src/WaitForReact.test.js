@@ -4,16 +4,16 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import PProgress from 'p-progress';
-import WaitForIt from './WaitForIt';
+import WaitForReact from './WaitForReact';
 
 const defaultChildren = jest.fn(({ progress }) => (
     <div style={ { transform: `scaleX(${progress})` } } />
 ));
 
 const Tree = (props = {}) => (
-    <WaitForIt { ...props }>
+    <WaitForReact { ...props }>
         { props.children || defaultChildren }
-    </WaitForIt>
+    </WaitForReact>
 );
 
 beforeAll(() => {

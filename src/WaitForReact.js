@@ -4,7 +4,7 @@ import { throttle } from 'lodash';
 import changeProps from 'react-change-props';
 import script from './inline-script.raw.js';
 
-export default class WaitForIt extends Component {
+export default class WaitForReact extends Component {
     state;
 
     time = 0;
@@ -154,12 +154,12 @@ export default class WaitForIt extends Component {
 
     suppressHydrationWarnings(children) {
         return changeProps(children, (child) =>
-            child.props['data-wait-for-it-element'] != null ? { suppressHydrationWarning: true } : {},
+            child.props['data-wait-for-react-element'] != null ? { suppressHydrationWarning: true } : {},
         );
     }
 }
 
-WaitForIt.propTypes = {
+WaitForReact.propTypes = {
     children: PropTypes.func.isRequired,
     maxProgressBeforeInteractive: PropTypes.number,
     applyProgressBeforeInteractive: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
@@ -169,7 +169,7 @@ WaitForIt.propTypes = {
     onDone: PropTypes.func,
 };
 
-WaitForIt.defaultProps = {
+WaitForReact.defaultProps = {
     progressInterval: 100,
     progressDecay: /* istanbul ignore next */ (time) => 1 - Math.exp(-1 * time / 4000),
     maxProgressBeforeInteractive: 0.4,

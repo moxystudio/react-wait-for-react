@@ -7,19 +7,18 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/moxystudio/react-wait-for-it.git"
+    "url": "git+https://github.com/moxystudio/react-wait-for-react.git"
   },
   "scripts": {
     "dev": "next",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "export": "next export"
   },
   "dependencies": {
+    "@moxy/react-wait-for-react": "file:..",
     "next": "^9.1.7",
-    "p-props": "^3.1.0",
-    "prop-types": "^15.7.2",
     "react": "^16.12.0",
-    "@moxy/react-wait-for-it": "file:..",
     "react-dom": "^16.12.0"
   }
 }

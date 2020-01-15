@@ -9,10 +9,10 @@ const getCurrentScript = () => {
 };
 
 const getElements = () => {
-    const elementsArray = Array.prototype.slice.call(document.querySelectorAll('[data-wait-for-it-element]'));
+    const elementsArray = Array.prototype.slice.call(document.querySelectorAll('[data-wait-for-react-element]'));
 
     return elementsArray.reduce((elements, element) => {
-        elements[element.getAttribute('data-wait-for-it-element')] = element;
+        elements[element.getAttribute('data-wait-for-react-element')] = element;
 
         return elements;
     }, {});

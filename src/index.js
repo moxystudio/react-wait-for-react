@@ -1,1 +1,1 @@
-export { default } from './WaitForIt';
+export { default } from './WaitForReact';

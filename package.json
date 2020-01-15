@@ -1,28 +1,36 @@
 {
-  "name": "@moxy/react-wait-for-it",
+  "name": "@moxy/react-wait-for-react",
   "version": "0.0.0",
-  "description": "A React component and hook render children conditionally based on a promise state",
+  "description": "Easily render a loader while your React app is loading, optionally waiting for a promise as well",
   "main": "lib/index.js",
   "module": "es/index.js",
-  "homepage": "https://github.com/moxystudio/react-wait-for-it#readme",
+  "homepage": "https://github.com/moxystudio/react-wait-for-react#readme",
   "author": "André Cruz <andre@moxy.studio>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/moxystudio/react-wait-for-it.git"
+    "url": "git+https://github.com/moxystudio/react-wait-for-react.git"
   },
   "keywords": [
     "react",
-    "promise",
-    "state",
-    "status",
-    "timeout",
-    "delay",
-    "suspense",
-    "hook"
+    "preload",
+    "loader",
+    "progress",
+    "isomorphic",
+    "tti",
+    "time to interactive",
+    "fp",
+    "first paint",
+    "fcp",
+    "first contentful paint",
+    "fmp",
+    "first meaningful paint",
+    "fid",
+    "first input delay",
+    "promise"
   ],
   "bugs": {
-    "url": "https://github.com/moxystudio/react-wait-for-it/issues"
+    "url": "https://github.com/moxystudio/react-wait-for-react/issues"
   },
   "files": [
     "lib",
@@ -30,8 +38,8 @@
   ],
   "scripts": {
     "prebuild": "cpr src src-tmp -d && babel src/inline-script.raw.js -o src-tmp/inline-script.raw.js && terser -c -m -o src-tmp/inline-script.raw.js -- src-tmp/inline-script.raw.js",
-    "build:commonjs": "cross-env BABEL_ENV=commonjs babel src-tmp -d lib --delete-dir-on-start",
-    "build:es": "cross-env BABEL_ENV=es babel src-tmp -d es --delete-dir-on-start",
+    "build:commonjs": "BABEL_ENV=commonjs babel src-tmp -d lib --delete-dir-on-start",
+    "build:es": "BABEL_ENV=es babel src-tmp -d es --delete-dir-on-start",
     "build": "npm run build:commonjs && npm run build:es",
     "postbuild": "rimraf src-tmp",
     "test": "jest",
@@ -60,7 +68,6 @@
     "babel-plugin-inline-import": "^3.0.0",
     "commitlint": "^8.0.0",
     "cpr": "^3.0.1",
-    "cross-env": "^6.0.3",
     "eslint": "^6.0.0",
     "husky": "^4.0.0",
     "jest": "^24.5.0",

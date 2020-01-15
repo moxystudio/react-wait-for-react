@@ -5,3 +5,4 @@ lib/
 es/
 src-tmp/
 demo/.next
+demo/out
