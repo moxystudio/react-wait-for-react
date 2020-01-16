@@ -43,7 +43,7 @@ You may see a simple demo of `react-wait-for-react` in [https://moxystudio.githu
 Using `<WaitForReact>` to render a progress bar while your page assets are being loaded:
 
 ```js
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import classNames from 'classnames';
 import WaitForReact from '@moxy/react-wait-for-react';
 import styles from './MyPage.module.css';
