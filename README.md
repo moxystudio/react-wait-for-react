@@ -152,7 +152,7 @@ The interval, in ms, to report progress. The value of `progressInterval` will ef
 
 ### promise
 
-Type: `Promise` or `PPromise`
+Type: `Promise` or `PProgress `
 
 A promise to wait for, after the app becomes interactive.
 
