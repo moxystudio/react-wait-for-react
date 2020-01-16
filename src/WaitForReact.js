@@ -5,7 +5,7 @@ import changeProps from 'react-change-props';
 import script from './inline-script.raw.js';
 
 const pickScriptState = () =>
-    typeof window !== 'undefined' && Array.isArray(window.__WAIT_FOR_IT__) ? window.__WAIT_FOR_IT__.shift() : undefined;
+    typeof window !== 'undefined' && Array.isArray(window.__REACT_WAIT_FOR_REACT__) ? window.__REACT_WAIT_FOR_REACT__.shift() : undefined;
 
 export default class WaitForReact extends Component {
     state;

@@ -47,8 +47,8 @@
 
     // Push the state so that it's picked up when rehydrating
     // The array is needed to allow multiple instances of `<WaitForIt>`
-    window.__WAIT_FOR_IT__ = window.__WAIT_FOR_IT__ || [];
-    window.__WAIT_FOR_IT__.push(__STATE__);
+    window.__REACT_WAIT_FOR_REACT__ = window.__REACT_WAIT_FOR_REACT__ || [];
+    window.__REACT_WAIT_FOR_REACT__.push(__STATE__);
 
     ready(() => {
         const elements = getElements();

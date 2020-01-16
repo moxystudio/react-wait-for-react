@@ -258,7 +258,7 @@ describe('SSR', () => {
 
     afterEach(() => {
         windowSpy.mockRestore();
-        delete window.__WAIT_FOR_IT__;
+        delete window.__REACT_WAIT_FOR_REACT__;
     });
 
     it('should render inline script in SSR with the correct data attributes', () => {
@@ -288,7 +288,7 @@ describe('SSR', () => {
     });
 
     it('should resume progress correctly', () => {
-        window.__WAIT_FOR_IT__ = [{
+        window.__REACT_WAIT_FOR_REACT__ = [{
             progress: 0.22,
             intervalId: undefined,
         }];
