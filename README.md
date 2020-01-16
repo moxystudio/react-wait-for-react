@@ -156,7 +156,7 @@ Type: `Promise` or `PProgress `
 
 A promise to wait for, after the app becomes interactive.
 
-When a standard `Promise` is given, `<WaitForReact>` will initiate a "fake progress" until the promise settles. However, you may pass a [`PPromise`](https://github.com/sindresorhus/p-progress). In this case, the progress reported by the promise will be used instead of the "fake progress".
+When a standard `Promise` is given, `<WaitForReact>` will initiate a "fake progress" until the promise settles. However, you may pass a [`PProgress `](https://github.com/sindresorhus/p-progress). In this case, the progress reported by the promise will be used instead of the "fake progress".
 
 ### children
 
