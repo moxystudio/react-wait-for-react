@@ -3,7 +3,9 @@ import classNames from 'classNames';
 import WaitForReact from '@moxy/react-wait-for-react';
 import styles from './index.module.css';
 
-const applyProgressBeforeInteractive = "function (elements, progress) { elements.progressBar.style = 'transform:scaleX(' + progress + ')' }";
+const applyProgressBeforeInteractive = `function (elements, progress) {
+    elements.progressBar.style = 'transform:scaleX(' + progress + ')';
+}`;
 
 const promise = new Promise((resolve) => setTimeout(resolve, 5000));
 

@@ -1,12 +1,12 @@
-/* eslint-disable react/jsx-no-bind, react/prop-types, no-template-curly-in-string */
-
 import React from 'react';
 import { render } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import PProgress from 'p-progress';
 import WaitForReact from './WaitForReact';
 
-const defaultApplyProgressBeforeInteractive = '(elements, progress) => { elements.bar.style.transform = `scaleX(${progress})`; }';
+const defaultApplyProgressBeforeInteractive = `function (elements, progress) {
+    elements.progressBar.style.transform = 'scaleX(' + progress + ')';
+}'`;
 const defaultChildren = jest.fn(({ progress }) => (
     <div data-wait-for-react-element="bar" style={ { transform: `scaleX(${progress})` } } />
 ));
