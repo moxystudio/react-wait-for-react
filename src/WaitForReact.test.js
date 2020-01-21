@@ -6,7 +6,7 @@ import WaitForReact from './WaitForReact';
 
 const defaultApplyProgressBeforeInteractive = `function (elements, progress) {
     elements.progressBar.style.transform = 'scaleX(' + progress + ')';
-}'`;
+}`;
 const defaultChildren = jest.fn(({ progress }) => (
     <div data-wait-for-react-element="bar" style={ { transform: `scaleX(${progress})` } } />
 ));
@@ -179,7 +179,7 @@ it('should truncate progress between 0 and 0.99', async () => {
 
     expect(calledLowerThanZero).toBe(false);
     expect(calledHigherThanOrEqualToOne).toBe(false);
-    expect(defaultChildren).toHaveBeenCalledWith({ progress: 0.95, error: undefined });
+    expect(defaultChildren).toHaveBeenCalledWith({ progress: 0.99, error: undefined });
 });
 
 describe('props change', () => {

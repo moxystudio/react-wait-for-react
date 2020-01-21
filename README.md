@@ -56,7 +56,7 @@ const MyPage = () => {
     const promise = useMemo(() => preloadAssets(), []);
     const applyProgressBeforeInteractive = `function (elements, progress) {
         elements.progressBar.style.transform = 'scaleX(' + progress + ')';
-    }'`;
+    }`;
 
     return (
         <main>
@@ -131,7 +131,7 @@ const MyPage = () => (
 ### progressDecay
 
 Type: `string`   
-Default: `function (time) { return 1 - Math.exp(-1 * time / 4000); }`
+Default: `function (time) { return Math.min(0.95, 1 - Math.exp(-1 * time / 4000)); }`
 
 A function in it's string form to calculate the progress value based on the elapsed time. Typically, the algorithm has a decay pattern, where increments are smaller and smaller as time passes by.
 
@@ -148,7 +148,7 @@ Default: 100
 
 The interval, in ms, to report progress. The value of `progressInterval` will effectively throttle all the internal behavior of `<WaitForReact>`, including the frequency in which the `children` render prop will be called.
 
-ℹ️ If you are using CSS transitions, the transition durations should be equal or smaller than `progressInterval`. This circumvents an issue with several browsers, such as Chrome and Firefox, where updating a CSS property in the middle of a transition will cause the animation to "restart".
+ℹ️ If you are using CSS transitions, the transition durations should be slightly smaller than `progressInterval`. This circumvents an issue with several browsers, such as Chrome and Firefox, where updating a CSS property in the middle of a transition will cause the animation to "restart".
 
 ### promise
 

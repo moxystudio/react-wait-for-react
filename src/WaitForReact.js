@@ -1,7 +1,6 @@
-import React, { Component } from 'react';
+import React, { Component, Children, cloneElement, isValidElement } from 'react';
 import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
-import changeProps from 'react-change-props';
 import script from './inline-script.raw.js';
 
 const pickScriptState = () =>
@@ -27,9 +26,7 @@ export default class WaitForReact extends Component {
             error: undefined,
         };
 
-        if (scriptState) {
-            clearInterval(scriptState.intervalId);
-        }
+        clearInterval(scriptState?.timeoutId);
     }
 
     componentDidMount() {
@@ -69,6 +66,7 @@ export default class WaitForReact extends Component {
 
         return (
             <>
+                { returnedChildren }
                 { renderScript && (
                     <script
                         dangerouslySetInnerHTML={ { __html: script } }
@@ -77,7 +75,6 @@ export default class WaitForReact extends Component {
                         data-progress-decay={ progressDecay }
                         data-progress-interval={ progressInterval } />
                 ) }
-                { returnedChildren }
             </>
         );
     }
@@ -149,7 +146,7 @@ export default class WaitForReact extends Component {
         // Normalize progress having into consideration the progress from before interactive, ensuring it is between 0 and 0.95
         const normalizedProgress = maxProgressBeforeInteractive + ((1 - maxProgressBeforeInteractive) * progress);
         const roundedProgress = Math.round(normalizedProgress * (10 ** 6)) / (10 ** 6);
-        const truncatedProgress = Math.max(Math.min(roundedProgress, 0.95), 0);
+        const truncatedProgress = Math.max(Math.min(roundedProgress, 0.99), 0);
 
         return truncatedProgress;
     }
@@ -157,9 +154,16 @@ export default class WaitForReact extends Component {
     suppressHydrationWarnings(children) {
         // Suppress hydration warnings on elements tagged with `data-wait-for-react-element`
         // This is needed because of spaces mismatches in style attributes
-        return changeProps(children, (child) =>
-            child.props['data-wait-for-react-element'] != null ? { suppressHydrationWarning: true } : {},
-        );
+        return Children.map(children, (child) => {
+            if (!isValidElement(child)) {
+                return child;
+            }
+
+            return cloneElement(child, {
+                children: this.suppressHydrationWarnings(child.props.children),
+                suppressHydrationWarning: !!child.props['data-wait-for-react-element'],
+            });
+        });
     }
 }
 
@@ -175,6 +179,6 @@ WaitForReact.propTypes = {
 
 WaitForReact.defaultProps = {
     progressInterval: 100,
-    progressDecay: /* istanbul ignore next */ 'function (time) { return 1 - Math.exp(-1 * time / 4000); }',
+    progressDecay: /* istanbul ignore next */ 'function (time) { return Math.min(0.95, 1 - Math.exp(-1 * time / 4000)); }',
     maxProgressBeforeInteractive: 0.4,
 };

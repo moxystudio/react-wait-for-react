@@ -1,7 +1,4 @@
 module.exports = {
-    experimental: {
-        css: true,
-    },
     exportPathMap() {
         return {
             '/': { page: '/' },

@@ -9,8 +9,25 @@
         return scripts[scripts.length - 1];
     };
 
-    const getElements = () => {
-        const elementsArray = Array.prototype.slice.call(document.querySelectorAll('[data-wait-for-react-element]'));
+    const getConfig = (script) => {
+        const { dataset } = script;
+
+        const maxProgress = Number(dataset.maxProgress);
+        const applyProgress = new Function(['elements', 'progress'], `(${dataset.applyProgress})(elements, progress)`);
+        const progressDecay = new Function(['time'], `return (${dataset.progressDecay})(time)`);
+        const progressInterval = Number(dataset.progressInterval);
+
+        return {
+            maxProgress,
+            applyProgress,
+            progressDecay,
+            progressInterval,
+        };
+    };
+
+    const getElements = (script) => {
+        const parentElement = script.parentNode;
+        const elementsArray = Array.prototype.slice.call(parentElement.querySelectorAll('[data-wait-for-react-element]'));
 
         return elementsArray.reduce((elements, element) => {
             elements[element.getAttribute('data-wait-for-react-element')] = element;
@@ -19,30 +36,15 @@
         }, {});
     };
 
-    const ready = (fn) => {
-        if (document.attachEvent ? document.readyState === 'complete' : document.readyState !== 'loading') {
-            fn();
-        } else {
-            document.addEventListener('DOMContentLoaded', fn);
-        }
-    };
-
     const script = getCurrentScript();
-
-    if (!script) {
-        throw new Error('Could not find current script element');
-    }
-
-    const dataset = script.dataset;
-
-    const maxProgress = Number(dataset.maxProgress);
-    const applyProgress = new Function(['elements', 'progress'], `(${dataset.applyProgress})(elements, progress)`);
-    const progressDecay = new Function(['time'], `return (${dataset.progressDecay})(time)`);
-    const progressInterval = Number(dataset.progressInterval);
+    const config = getConfig(script);
+    const elements = getElements(script);
 
     const __STATE__ = {
         progress: 0,
-        intervalId: undefined,
+        time: 0,
+        timeoutId: undefined,
+        timeoutStartedAt: undefined,
     };
 
     // Push the state so that it's picked up when rehydrating
@@ -50,26 +52,21 @@
     window.__REACT_WAIT_FOR_REACT__ = window.__REACT_WAIT_FOR_REACT__ || [];
     window.__REACT_WAIT_FOR_REACT__.push(__STATE__);
 
-    ready(() => {
-        const elements = getElements();
-        let time = 0;
+    const fakeIncrement = () => {
+        __STATE__.time += config.progressInterval;
 
-        const fakeIncrement = () => {
-            time += progressInterval;
+        const progress = config.progressDecay(__STATE__.time);
 
-            const progress = progressDecay(time);
+        // Normalize progress having into consideration the max progress, ensuring it is between 0 and 95% of maxProgress
+        const normalizedProgress = config.maxProgress * progress;
+        const roundedProgress = Math.round(normalizedProgress * (10 ** 6)) / (10 ** 6);
+        const truncatedProgress = Math.max(Math.min(roundedProgress, config.maxProgress * 0.99), 0);
 
-            // Normalize progress having into consideration the max progress, ensuring it is between 0 and 95% of maxProgress
-            const normalizedProgress = maxProgress * progress;
-            const roundedProgress = Math.round(normalizedProgress * (10 ** 6)) / (10 ** 6);
-            const truncatedProgress = Math.max(Math.min(roundedProgress, maxProgress * 0.95), 0);
+        __STATE__.progress = truncatedProgress;
+        __STATE__.timeoutId = setTimeout(fakeIncrement, config.progressInterval);
 
-            __STATE__.progress = truncatedProgress;
-            applyProgress(elements, truncatedProgress);
-        };
+        config.applyProgress(elements, truncatedProgress);
+    };
 
-        __STATE__.intervalId = setInterval(fakeIncrement, progressInterval);
-
-        fakeIncrement();
-    });
+    __STATE__.timeoutId = setTimeout(fakeIncrement, Math.min(30, config.progressInterval));
 })();

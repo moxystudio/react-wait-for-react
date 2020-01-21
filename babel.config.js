@@ -2,7 +2,7 @@ module.exports = (api) => {
     api.cache(true);
 
     return {
-        ignore: process.env.NODE_ENV === 'test' ? [] : ['**/*.test.js'],
+        ignore: process.env.NODE_ENV === 'test' ? [] : ['**/*.test.js', '**/__snapshots__'],
         overrides: [
             {
                 exclude: '**/inline-script.raw.js',

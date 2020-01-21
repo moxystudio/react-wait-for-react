@@ -41,7 +41,7 @@
     "build:commonjs": "BABEL_ENV=commonjs babel src-tmp -d lib --delete-dir-on-start",
     "build:es": "BABEL_ENV=es babel src-tmp -d es --delete-dir-on-start",
     "build": "npm run build:commonjs && npm run build:es",
-    "postbuild": "rimraf src-tmp",
+    "postbuild": "rimraf lib/inline-script.raw.js es/inline-script.raw.js src-tmp",
     "test": "jest",
     "lint": "eslint --ignore-path .gitignore .",
     "prerelease": "npm t && npm run lint && npm run build",
@@ -53,8 +53,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.15",
-    "prop-types": "^15.7.2",
-    "react-change-props": "^1.2.0"
+    "prop-types": "^15.7.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
