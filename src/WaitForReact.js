@@ -167,8 +167,6 @@ export default class WaitForReact extends Component {
     }
 }
 
-console.log('test');
-
 WaitForReact.propTypes = {
     children: PropTypes.func.isRequired,
     maxProgressBeforeInteractive: PropTypes.number,
