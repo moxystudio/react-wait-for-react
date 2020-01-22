@@ -1,0 +1,82 @@
+{
+  "name": "@moxy/react-wait-for-react",
+  "version": "0.0.0",
+  "description": "Easily render a loader while your React app is loading, optionally waiting for a promise as well",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "homepage": "https://github.com/moxystudio/react-wait-for-react#readme",
+  "author": "André Cruz <andre@moxy.studio>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moxystudio/react-wait-for-react.git"
+  },
+  "keywords": [
+    "react",
+    "preload",
+    "loader",
+    "splash",
+    "splash screen",
+    "progress",
+    "isomorphic",
+    "tti",
+    "time to interactive",
+    "fp",
+    "first paint",
+    "fcp",
+    "first contentful paint",
+    "fmp",
+    "first meaningful paint",
+    "fid",
+    "first input delay",
+    "promise"
+  ],
+  "bugs": {
+    "url": "https://github.com/moxystudio/react-wait-for-react/issues"
+  },
+  "files": [
+    "lib",
+    "es"
+  ],
+  "scripts": {
+    "prebuild": "cpr src src-tmp -d && babel src/inline-script.raw.js -o src-tmp/inline-script.raw.js && terser -c -m -o src-tmp/inline-script.raw.js -- src-tmp/inline-script.raw.js",
+    "build:commonjs": "BABEL_ENV=commonjs babel src-tmp -d lib --delete-dir-on-start",
+    "build:es": "BABEL_ENV=es babel src-tmp -d es --delete-dir-on-start",
+    "build": "npm run build:commonjs && npm run build:es",
+    "postbuild": "rimraf lib/inline-script.raw.js es/inline-script.raw.js src-tmp",
+    "test": "jest",
+    "lint": "eslint --ignore-path .gitignore .",
+    "prerelease": "npm t && npm run lint && npm run build",
+    "release": "standard-version",
+    "postrelease": "git push --follow-tags origin HEAD && npm publish"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.15",
+    "prop-types": "^15.7.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.4",
+    "@commitlint/config-conventional": "^8.0.0",
+    "@moxy/babel-preset": "^3.2.1",
+    "@moxy/eslint-config": "^10.1.0",
+    "@moxy/jest-config": "^1.2.0",
+    "@testing-library/react": "^9.0.0",
+    "babel-jest": "^24.5.0",
+    "babel-plugin-inline-import": "^3.0.0",
+    "commitlint": "^8.3.5",
+    "cpr": "^3.0.1",
+    "eslint": "^6.0.0",
+    "husky": "^4.0.10",
+    "jest": "^24.5.0",
+    "lint-staged": "^10.0.1",
+    "p-progress": "^0.4.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "standard-version": "^7.0.0",
+    "terser": "^4.6.2"
+  }
+}

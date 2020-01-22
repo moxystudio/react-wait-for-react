@@ -1,0 +1,8 @@
+node_modules
+npm-debug.log*
+coverage
+lib/
+es/
+src-tmp/
+demo/.next
+demo/out
