@@ -36,7 +36,7 @@ It's then often normal to preload all the required files for an uninterrupted ex
 
 ## Demo
 
-You may see a simple demo of `react-wait-for-react` in [https://moxystudio.github.io/react-wait-for-react](https://moxystudio.github.io/react-wait-for-react/).
+You may see a simple demo of `@moxy/react-wait-for-react` at [https://moxystudio.github.io/react-wait-for-react](https://moxystudio.github.io/react-wait-for-react/).
 
 ## Usage
 
