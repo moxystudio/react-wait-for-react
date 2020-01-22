@@ -1,5 +1,5 @@
 import React from 'react';
-import classNames from 'classNames';
+import classNames from 'classnames';
 import WaitForReact from '@moxy/react-wait-for-react';
 import styles from './index.module.css';
 
