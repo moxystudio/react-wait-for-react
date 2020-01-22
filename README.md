@@ -5,8 +5,8 @@
 [npm-url]:https://npmjs.org/package/@moxy/react-wait-for-react
 [downloads-image]:https://img.shields.io/npm/dm/@moxy/react-wait-for-react.svg
 [npm-image]:https://img.shields.io/npm/v/@moxy/react-wait-for-react.svg
-[build-status-url]:https://github.com/moxystudio/next-with-moxy/actions
-[build-status-image]:https://img.shields.io/github/workflow/status/moxystudio/next-with-moxy/Node%20CI/master
+[build-status-url]:https://github.com/moxystudio/react-wait-for-react/actions
+[build-status-image]:https://img.shields.io/github/workflow/status/moxystudio/react-wait-for-react/Node%20CI/master
 [codecov-url]:https://codecov.io/gh/moxystudio/react-wait-for-react
 [codecov-image]:https://img.shields.io/codecov/c/github/moxystudio/react-wait-for-react/master.svg
 [david-dm-url]:https://david-dm.org/moxystudio/react-wait-for-react
