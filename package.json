@@ -15,6 +15,8 @@
     "react",
     "preload",
     "loader",
+    "splash",
+    "splash screen",
     "progress",
     "isomorphic",
     "tti",

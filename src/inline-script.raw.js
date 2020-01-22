@@ -68,5 +68,5 @@
         config.applyProgress(elements, truncatedProgress);
     };
 
-    __STATE__.timeoutId = setTimeout(fakeIncrement, Math.min(30, config.progressInterval));
+    __STATE__.timeoutId = setTimeout(fakeIncrement, Math.min(60, config.progressInterval));
 })();
