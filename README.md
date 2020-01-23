@@ -14,7 +14,7 @@
 [david-dm-dev-url]:https://david-dm.org/moxystudio/react-wait-for-react?type=dev
 [david-dm-dev-image]:https://img.shields.io/david/dev/moxystudio/react-wait-for-react.svg
 
-Easily render a splash screen and loader while your React app is not yet interactive, optionally waiting for a promise as well.
+Easily render a splash screen (also known as launch screen) with feedback while your React app is not yet interactive, optionally waiting for a promise as well.
 
 ## Installation
 
