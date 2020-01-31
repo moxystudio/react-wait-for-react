@@ -4,13 +4,13 @@
   "description": "Easily render a loader while your React app is loading, optionally waiting for a promise as well",
   "main": "lib/index.js",
   "module": "es/index.js",
+  "files": [
+    "lib",
+    "es"
+  ],
   "homepage": "https://github.com/moxystudio/react-wait-for-react#readme",
   "author": "André Cruz <andre@moxy.studio>",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/moxystudio/react-wait-for-react.git"
-  },
   "keywords": [
     "react",
     "preload",
@@ -32,13 +32,13 @@
     "first input delay",
     "promise"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moxystudio/react-wait-for-react.git"
+  },
   "bugs": {
     "url": "https://github.com/moxystudio/react-wait-for-react/issues"
   },
-  "files": [
-    "lib",
-    "es"
-  ],
   "scripts": {
     "prebuild": "cpr src src-tmp -d && babel src/inline-script.raw.js -o src-tmp/inline-script.raw.js && terser -c -m -o src-tmp/inline-script.raw.js -- src-tmp/inline-script.raw.js",
     "build:commonjs": "BABEL_ENV=commonjs babel src-tmp -d lib --delete-dir-on-start",
