@@ -42,7 +42,7 @@ it('should render correctly', async () => {
 
     const div = container.querySelector('div');
 
-    expect(div).toBeDefined();
+    expect(div).toBeInstanceOf(HTMLElement);
     expect(div.style.transform).toBe('scaleX(0)');
 
     await new Promise((resolve) => setTimeout(resolve, 150));
