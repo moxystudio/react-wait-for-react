@@ -4,9 +4,6 @@ on:
   push:
     paths-ignore:
       - demo/**/*
-  pull_request:
-    paths-ignore:
-      - demo/**/*
 
 jobs:
 
