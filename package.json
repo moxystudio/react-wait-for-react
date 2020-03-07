@@ -64,7 +64,7 @@
     "@commitlint/config-conventional": "^8.0.0",
     "@moxy/babel-preset": "^3.2.1",
     "@moxy/eslint-config": "^10.1.0",
-    "@moxy/jest-config": "^1.3.0",
+    "@moxy/jest-config": "^2.0.0",
     "@testing-library/react": "^9.0.0",
     "babel-plugin-inline-import": "^3.0.0",
     "commitlint": "^8.3.5",
