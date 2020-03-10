@@ -1,4 +1,8 @@
+/* stylelint-disable declaration-property-value-blacklist, unit-blacklist, scale-unlimited/declaration-strict-value */
+
 .splashScreen {
+    --transition-duration: 200ms;
+
     position: fixed;
     top: 0;
     right: 0;
@@ -8,10 +12,11 @@
     justify-content: center;
     align-items: center;
     background-color: #131313;
-    transition: opacity 0.4s 0.2s ease, visibility 0s 0.6s;
+    transition: opacity 0.4s var(--transition-duration) ease, visibility 0s calc(0.4s + var(--transition-duration));
 }
 
 .splashScreen.loaded {
+    visibility: hidden;
     opacity: 0;
 }
 
@@ -21,15 +26,16 @@
     right: 0;
     left: 0;
     height: 4px;
+    transform: scaleX(0);
     transform-origin: left center;
     background: #fffd8f;
     pointer-events: none;
-    transition: transform 0.2s linear;
+    transition: transform var(--transition-duration) linear;
 }
 
 .content {
     color: #fff;
+    font-family: -apple-system, "Helvetica Neue", sans-serif;
     font-size: 34px;
-    font-family: -apple-system, 'Helvetica Neue', sans-serif;
     font-weight: 300;
 }

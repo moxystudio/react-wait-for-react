@@ -146,9 +146,9 @@ The `progressDecay` function signature is `(time) => <progress>`, where `time` i
 Type: `number`   
 Default: 100
 
-The interval, in ms, to report progress. The value of `progressInterval` will effectively throttle all the internal behavior of `<WaitForReact>`, including the frequency in which the `children` render prop will be called.
+The interval, in ms, in which progress will be incremented.
 
-ℹ️ If you are using CSS transitions, the transition durations should be slightly smaller than `progressInterval`. This circumvents an issue with several browsers, such as Chrome and Firefox, where updating a CSS property in the middle of a transition will cause the animation to "restart".
+ℹ️ If you are using CSS transitions, the value of `progressInterval` should be slightly higher than the CSS transition duration. This circumvents an issue with several browsers, such as Chrome and Firefox, where updating a CSS property in the middle of a transition will cause the animation to "restart".
 
 ### promise
 
@@ -156,7 +156,7 @@ Type: `Promise` or `PProgress `
 
 A promise to wait for, after the app becomes interactive.
 
-When a standard `Promise` is given, `<WaitForReact>` will initiate a "fake progress" until the promise settles. However, you may pass a [`PProgress `](https://github.com/sindresorhus/p-progress). In this case, the progress reported by the promise will be used instead of the "fake progress".
+When a standard `Promise` is given, `<WaitForReact>` will initiate the same "fake progress" mentioned in [`progressDecay`](#progressdecay) until the promise settles. However, you may pass a [`PProgress `](https://github.com/sindresorhus/p-progress). In this case, the progress reported by the promise will be used instead of the "fake progress".
 
 ### children
 

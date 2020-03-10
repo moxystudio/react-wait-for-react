@@ -7,11 +7,13 @@ import WaitForReact from './WaitForReact';
 const defaultApplyProgressBeforeInteractive = `function (elements, progress) {
     elements.progressBar.style.transform = 'scaleX(' + progress + ')';
 }`;
-const defaultChildren = jest.fn(({ progress }) => (
+const defaultChildren = ({ progress }) => (
     <div data-wait-for-react-element="bar" style={ { transform: `scaleX(${progress})` } } />
-));
+);
 
-const Tree = (props = {}) => (
+const didReportProgress = (children) => children.mock.calls.some((call) => call[0].progress > 0 && call[0].progress < 1);
+
+const WaitForReactWithDefaults = (props = {}) => (
     <WaitForReact
         applyProgressBeforeInteractive={ defaultApplyProgressBeforeInteractive }
         { ...props }>
@@ -27,55 +29,99 @@ beforeEach(() => {
     jest.clearAllMocks();
 });
 
-it('should call children function correctly', async () => {
-    render(<Tree maxProgressBeforeInteractive={ 0.2 } />);
+it('should call children function correctly when there\'s no promise', async () => {
+    const children = jest.fn(defaultChildren);
+
+    render((
+        <WaitForReactWithDefaults>
+            { children }
+        </WaitForReactWithDefaults>
+    ));
+
+    expect(children).toHaveBeenCalledTimes(1);
+    expect(children).toHaveBeenCalledWith({ progress: 1, error: undefined });
 
     await new Promise((resolve) => setTimeout(resolve, 150));
 
-    expect(defaultChildren).toHaveBeenCalledTimes(2);
-    expect(defaultChildren).toHaveBeenCalledWith({ progress: 0, error: undefined });
-    expect(defaultChildren).toHaveBeenCalledWith({ progress: 0.2, error: undefined });
+    expect(children).toHaveBeenCalledTimes(1);
+});
+
+it('should call children function correctly on fulfilled promise', async () => {
+    const children = jest.fn(defaultChildren);
+    const promise = Promise.resolve();
+
+    render((
+        <WaitForReactWithDefaults promise={ promise }>
+            { children }
+        </WaitForReactWithDefaults>
+    ));
+
+    expect(children).toHaveBeenCalledTimes(1);
+    expect(children).toHaveBeenCalledWith({ progress: 0, error: undefined });
+
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    expect(children).toHaveBeenCalledTimes(2);
+    expect(children).toHaveBeenCalledWith({ progress: 0, error: undefined });
+    expect(children).toHaveBeenCalledWith({ progress: 1, error: undefined });
+});
+
+it('should call children function correctly on rejected promise', async () => {
+    const error = new Error('foo');
+    const children = jest.fn(defaultChildren);
+    const promise = Promise.reject(error);
+
+    render((
+        <WaitForReactWithDefaults promise={ promise }>
+            { children }
+        </WaitForReactWithDefaults>
+    ));
+
+    expect(children).toHaveBeenCalledTimes(1);
+    expect(children).toHaveBeenCalledWith({ progress: 0, error: undefined });
+
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    expect(children).toHaveBeenCalledTimes(2);
+    expect(children).toHaveBeenCalledWith({ progress: 0, error: undefined });
+    expect(children).toHaveBeenCalledWith({ progress: 0, error });
 });
 
 it('should render correctly', async () => {
-    const { container } = render(<Tree maxProgressBeforeInteractive={ 0.2 } />);
+    const { container } = render(<WaitForReactWithDefaults />);
 
     const div = container.querySelector('div');
 
     expect(div).toBeInstanceOf(HTMLElement);
-    expect(div.style.transform).toBe('scaleX(0)');
-
-    await new Promise((resolve) => setTimeout(resolve, 150));
-
-    expect(div.style.transform).toBe('scaleX(0.2)');
+    expect(div.style.transform).toBe('scaleX(1)');
 });
 
-it('should set progress to 1 and call onDone immediately when there is no promise', async () => {
+it('should call onDone immediately when there is no promise', async () => {
     const onDone = jest.fn(() => {});
 
-    render(<Tree onDone={ onDone } />);
+    render(<WaitForReactWithDefaults onDone={ onDone } />);
 
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(defaultChildren).toHaveBeenCalledWith({ progress: 1, error: undefined });
     expect(onDone).toHaveBeenCalledTimes(1);
-    expect(onDone).toHaveBeenCalledWith();
 });
 
-it('should set progress to 1 and call onDone when promise fulfills', async () => {
+it('should call onDone when promise fulfills', async () => {
     const promise = new Promise((resolve) => setTimeout(resolve, 150));
     const onDone = jest.fn(() => {});
 
-    render(<Tree promise={ promise } onDone={ onDone } />);
+    render((
+        <WaitForReactWithDefaults
+            promise={ promise }
+            onDone={ onDone } />
+    ));
+
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    expect(onDone).toHaveBeenCalledTimes(0);
 
     await new Promise((resolve) => setTimeout(resolve, 100));
 
-    expect(defaultChildren).not.toHaveBeenCalledWith({ progress: 1, error: undefined });
-    expect(onDone).toHaveBeenCalledTimes(0);
-
-    await new Promise((resolve) => setTimeout(resolve, 250));
-
-    expect(defaultChildren).toHaveBeenCalledWith({ progress: 1, error: undefined });
     expect(onDone).toHaveBeenCalledTimes(1);
     expect(onDone).toHaveBeenCalledWith();
 });
@@ -85,40 +131,39 @@ it('should call onDone with the error when promise rejects', async () => {
     const promise = new Promise((resolve, reject) => setTimeout(() => reject(error), 150));
     const onDone = jest.fn(() => {});
 
-    render(<Tree promise={ promise } onDone={ onDone } />);
+    render((
+        <WaitForReactWithDefaults
+            promise={ promise }
+            onDone={ onDone } />
+    ));
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     expect(onDone).toHaveBeenCalledTimes(0);
 
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     expect(onDone).toHaveBeenCalledTimes(1);
     expect(onDone).toHaveBeenCalledWith(error);
-    expect(defaultChildren).toHaveBeenCalled();
-
-    const called = defaultChildren.mock.calls.some((call) => call[0].error === error);
-
-    expect(called).toBe(true);
 });
 
 it('should report "fake" progress when promise does not have onProgress', async () => {
+    const children = jest.fn(defaultChildren);
+    const promise = new Promise((resolve) => setTimeout(resolve, 1000));
+
     render((
-        <Tree
-            maxProgressBeforeInteractive={ 0.2 }
-            promise={ new Promise((resolve) => setTimeout(resolve, 1000)) } />
+        <WaitForReactWithDefaults promise={ promise }>
+            { children }
+        </WaitForReactWithDefaults>
     ));
 
     await new Promise((resolve) => setTimeout(resolve, 250));
 
-    expect(defaultChildren).toHaveBeenCalled();
-
-    const called = defaultChildren.mock.calls.some((call) => call[0].progress > 0.2 && call[0].progress < 1);
-
-    expect(called).toBe(true);
+    expect(didReportProgress(children)).toBe(true);
 });
 
 it('should report promise progress when promise does have onProgress', async () => {
+    const children = jest.fn(defaultChildren);
     const promise = new PProgress((resolve, reject, progress) => {
         setTimeout(() => progress(0.5), 100);
         setTimeout(() => progress(0.8), 300);
@@ -126,18 +171,19 @@ it('should report promise progress when promise does have onProgress', async () 
     });
 
     render((
-        <Tree
-            maxProgressBeforeInteractive={ 0.2 }
-            promise={ promise } />
+        <WaitForReactWithDefaults promise={ promise }>
+            { children }
+        </WaitForReactWithDefaults>
     ));
 
     await new Promise((resolve) => setTimeout(resolve, 450));
 
-    expect(defaultChildren).toHaveBeenCalledWith({ progress: 0.6, error: undefined });
-    expect(defaultChildren).toHaveBeenCalledWith({ progress: 0.84, error: undefined });
+    expect(children).toHaveBeenCalledWith({ progress: 0.5, error: undefined });
+    expect(children).toHaveBeenCalledWith({ progress: 0.8, error: undefined });
 });
 
 it('should ignore progress report if promise fulfills', async () => {
+    const children = jest.fn(defaultChildren);
     const promise = Promise.resolve();
 
     promise.onProgress = (fn) => {
@@ -146,18 +192,20 @@ it('should ignore progress report if promise fulfills', async () => {
     };
 
     render((
-        <Tree
-            maxProgressBeforeInteractive={ 0.2 }
-            promise={ promise } />
+        <WaitForReactWithDefaults promise={ promise }>
+            { children }
+        </WaitForReactWithDefaults>
     ));
 
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    expect(defaultChildren).not.toHaveBeenCalledWith({ progress: 0.6, error: undefined });
-    expect(defaultChildren.mock.calls[defaultChildren.mock.calls.length - 1][0]).toEqual({ progress: 1, error: undefined });
+    expect(children).toHaveBeenCalledTimes(2);
+    expect(children).toHaveBeenCalledWith({ progress: 0, error: undefined });
+    expect(children).toHaveBeenCalledWith({ progress: 1, error: undefined });
 });
 
 it('should truncate progress between 0 and 0.99', async () => {
+    const children = jest.fn(defaultChildren);
     const promise = new Promise(() => {});
 
     promise.onProgress = (fn) => {
@@ -167,85 +215,120 @@ it('should truncate progress between 0 and 0.99', async () => {
     };
 
     render((
-        <Tree
-            maxProgressBeforeInteractive={ 0.2 }
-            promise={ promise } />
+        <WaitForReactWithDefaults promise={ promise }>
+            { children }
+        </WaitForReactWithDefaults>
     ));
 
     await new Promise((resolve) => setTimeout(resolve, 550));
 
-    const calledLowerThanZero = defaultChildren.mock.calls.some((call) => call[0].progress < 0);
-    const calledHigherThanOrEqualToOne = defaultChildren.mock.calls.some((call) => call[0].progress >= 1);
+    const calledLowerThanZero = children.mock.calls.some((call) => call[0].progress < 0);
+    const calledHigherThanOrEqualToOne = children.mock.calls.some((call) => call[0].progress >= 1);
 
     expect(calledLowerThanZero).toBe(false);
     expect(calledHigherThanOrEqualToOne).toBe(false);
-    expect(defaultChildren).toHaveBeenCalledWith({ progress: 0.99, error: undefined });
+    expect(children).toHaveBeenCalledWith({ progress: 0.99, error: undefined });
 });
 
 describe('props change', () => {
     it('should allow changing progressInterval', async () => {
+        const children = jest.fn(defaultChildren);
         const promise = new Promise(() => {});
+
         const { rerender } = render((
-            <Tree
-                maxProgressBeforeInteractive={ 0.2 }
-                progressInterval={ 50 }
-                promise={ promise } />
+            <WaitForReactWithDefaults promise={ promise }>
+                { children }
+            </WaitForReactWithDefaults>
         ));
 
+        await new Promise((resolve) => setTimeout(resolve, 150));
+
+        expect(didReportProgress(children)).toBe(true);
+
         rerender((
-            <Tree
-                maxProgressBeforeInteractive={ 0.2 }
+            <WaitForReactWithDefaults
                 progressInterval={ 700 }
-                promise={ promise } />
+                promise={ promise }>
+                { children }
+            </WaitForReactWithDefaults>
         ));
+
+        children.mockReset();
 
         await new Promise((resolve) => setTimeout(resolve, 600));
 
-        expect(defaultChildren).toHaveBeenCalled();
+        expect(didReportProgress(children)).toBe(false);
 
-        const called = defaultChildren.mock.calls.some((call) => call[0].progress > 0.2 && call[0].progress < 1);
+        await new Promise((resolve) => setTimeout(resolve, 750));
 
-        expect(called).toBe(false);
+        expect(didReportProgress(children)).toBe(true);
     });
 
     it('should allow changing progressDecay', async () => {
+        const children = jest.fn(defaultChildren);
         const promise = new Promise(() => {});
+
         const { rerender } = render((
-            <Tree
-                maxProgressBeforeInteractive={ 0.2 }
-                promise={ promise } />
+            <WaitForReactWithDefaults
+                progressDecay="() => 0.2"
+                promise={ promise }>
+                { children }
+            </WaitForReactWithDefaults>
         ));
 
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        children.mockReset();
+
+        await new Promise((resolve) => setTimeout(resolve, 150));
+
+        expect(children).toHaveBeenCalledTimes(1);
+        expect(children).toHaveBeenCalledWith({ progress: 0.2, error: undefined });
 
         rerender((
-            <Tree
-                maxProgressBeforeInteractive={ 0.2 }
+            <WaitForReactWithDefaults
                 progressDecay="() => 0.9"
-                promise={ promise } />
+                promise={ promise }>
+                { children }
+            </WaitForReactWithDefaults>
         ));
 
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 250));
 
-        expect(defaultChildren).toHaveBeenCalled();
-
-        const called = defaultChildren.mock.calls.some((call) => call[0].progress > 0.9 && call[0].progress < 1);
-
-        expect(called).toBe(true);
+        expect(children).toHaveBeenCalledWith({ progress: 0.9, error: undefined });
     });
 
     it('should allow changing promise', async () => {
-        const { rerender } = render(<Tree promise={ new Promise(() => {}) } />);
+        const children = jest.fn(defaultChildren);
 
-        await new Promise((resolve) => setTimeout(resolve, 250));
+        const { rerender } = render((
+            <WaitForReactWithDefaults promise={ Promise.resolve() }>
+                { children }
+            </WaitForReactWithDefaults>
+        ));
 
-        rerender(<Tree promise={ Promise.resolve() } />);
+        await new Promise((resolve) => setTimeout(resolve, 150));
 
-        await new Promise((resolve) => setTimeout(resolve, 250));
+        rerender((
+            <WaitForReactWithDefaults promise={ Promise.resolve() }>
+                { children }
+            </WaitForReactWithDefaults>
+        ));
 
-        expect(defaultChildren).toHaveBeenCalled();
-        expect(defaultChildren.mock.calls.length).toBeGreaterThanOrEqual(3);
-        expect(defaultChildren.mock.calls[defaultChildren.mock.calls.length - 1][0]).toEqual({ progress: 1, error: undefined });
+        await new Promise((resolve) => setTimeout(resolve, 150));
+
+        rerender((
+            <WaitForReactWithDefaults>
+                { children }
+            </WaitForReactWithDefaults>
+        ));
+
+        await new Promise((resolve) => setTimeout(resolve, 150));
+
+        expect(children).toHaveBeenCalledTimes(5);
+        expect(children).toHaveBeenNthCalledWith(1, { progress: 0, error: undefined });
+        expect(children).toHaveBeenNthCalledWith(2, { progress: 1, error: undefined });
+        expect(children).toHaveBeenNthCalledWith(3, { progress: 0, error: undefined });
+        expect(children).toHaveBeenNthCalledWith(4, { progress: 1, error: undefined });
+        expect(children).toHaveBeenNthCalledWith(5, { progress: 1, error: undefined });
     });
 });
 
@@ -265,7 +348,7 @@ describe('SSR', () => {
         windowSpy.mockImplementation(() => undefined);
 
         const html = renderToString((
-            <Tree
+            <WaitForReactWithDefaults
                 maxProgressBeforeInteractive={ 0.2 }
                 applyProgressBeforeInteractive="() => 1"
                 progressDecay="() => 2"
@@ -279,10 +362,17 @@ describe('SSR', () => {
         expect(html).toContain(' data-progress-interval="1000"');
     });
 
-    it('should not render inline script when mounted', async () => {
-        const { container } = render(<Tree />);
+    it('should render inline script only when resuming', async () => {
+        window.__REACT_WAIT_FOR_REACT__ = [{
+            progress: 0.22,
+            intervalId: undefined,
+        }];
 
-        await new Promise((resolve) => setTimeout(resolve, 150));
+        const { container, rerender } = render(<WaitForReactWithDefaults />);
+
+        expect(container.querySelector('script')).toBeInstanceOf(HTMLElement);
+
+        rerender(<WaitForReactWithDefaults promise={ Promise.resolve() } />);
 
         expect(container.querySelector('script')).toBe(null);
     });
@@ -293,9 +383,61 @@ describe('SSR', () => {
             intervalId: undefined,
         }];
 
-        render(<Tree />);
+        const children = jest.fn(defaultChildren);
 
-        expect(defaultChildren.mock.calls.length).toBeGreaterThanOrEqual(1);
-        expect(defaultChildren.mock.calls[0][0]).toEqual({ progress: 0.22, error: undefined });
+        render((
+            <WaitForReactWithDefaults>
+                { children }
+            </WaitForReactWithDefaults>
+        ));
+
+        expect(children).toHaveBeenCalledTimes(1);
+        expect(children).toHaveBeenCalledWith({ progress: 0.22, error: undefined });
+    });
+
+    it('should normalize progress only when resuming', async () => {
+        window.__REACT_WAIT_FOR_REACT__ = [{
+            progress: 0.2,
+            intervalId: undefined,
+        }];
+
+        const children = jest.fn(defaultChildren);
+        let promise = new PProgress((resolve, reject, progress) => {
+            setTimeout(() => progress(0.1), 100);
+        });
+
+        render((
+            <WaitForReactWithDefaults
+                promise={ promise }
+                maxProgressBeforeInteractive={ 0.5 }>
+                { children }
+            </WaitForReactWithDefaults>
+        ));
+
+        await new Promise((resolve) => setTimeout(resolve, 150));
+
+        expect(children).toHaveBeenCalledTimes(2);
+        expect(children).toHaveBeenNthCalledWith(1, { progress: 0.2, error: undefined });
+        expect(children).toHaveBeenNthCalledWith(2, { progress: 0.55, error: undefined });
+
+        children.mockReset();
+
+        promise = new PProgress((resolve, reject, progress) => {
+            setTimeout(() => progress(0.1), 100);
+        });
+
+        render((
+            <WaitForReactWithDefaults
+                promise={ promise }
+                maxProgressBeforeInteractive={ 0.5 }>
+                { children }
+            </WaitForReactWithDefaults>
+        ));
+
+        await new Promise((resolve) => setTimeout(resolve, 150));
+
+        expect(children).toHaveBeenCalledTimes(2);
+        expect(children).toHaveBeenNthCalledWith(1, { progress: 0, error: undefined });
+        expect(children).toHaveBeenNthCalledWith(2, { progress: 0.1, error: undefined });
     });
 });

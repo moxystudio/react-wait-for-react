@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import WaitForReact from '@moxy/react-wait-for-react';
 import styles from './index.module.css';
 
+const transitionDuration = 200 + 50; // Keep this value slightly higher than the CSS counterpart
 const applyProgressBeforeInteractive = `function (elements, progress) {
     elements.progressBar.style = 'transform:scaleX(' + progress + ')';
 }`;
@@ -14,7 +15,7 @@ const Home = () => (
         <WaitForReact
             applyProgressBeforeInteractive={ applyProgressBeforeInteractive }
             promise={ promise }
-            progressInterval={ 200 }>
+            progressInterval={ transitionDuration }>
             { ({ progress }) => (
                 <div className={ classNames(styles.splashScreen, { [styles.loaded]: progress >= 1 }) }>
                     <div

@@ -44,7 +44,6 @@
         progress: 0,
         time: 0,
         timeoutId: undefined,
-        timeoutStartedAt: undefined,
     };
 
     // Push the state so that it's picked up when rehydrating
