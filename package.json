@@ -46,9 +46,7 @@
     "build": "npm run build:commonjs && npm run build:es",
     "postbuild": "rimraf lib/inline-script.raw.js es/inline-script.raw.js src-tmp",
     "test": "jest",
-    "lint": "npm run lint:eslint && npm run lint:stylelint",
-    "lint:eslint": "eslint --ignore-path .gitignore .",
-    "lint:stylelint": "stylelint --ignore-path .gitignore .",
+    "lint": "eslint --ignore-path .gitignore .",
     "prerelease": "npm t && npm run lint && npm run build",
     "release": "standard-version",
     "postrelease": "git push --follow-tags origin HEAD && npm publish"
@@ -67,7 +65,6 @@
     "@moxy/babel-preset": "^3.2.1",
     "@moxy/eslint-config": "^10.1.0",
     "@moxy/jest-config": "^2.0.0",
-    "@moxy/stylelint-config": "^8.1.0",
     "@testing-library/react": "^9.0.0",
     "babel-plugin-inline-import": "^3.0.0",
     "commitlint": "^8.3.5",
@@ -80,7 +77,6 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "standard-version": "^7.0.0",
-    "stylelint": "^13.2.1",
     "terser": "^4.6.2"
   }
 }

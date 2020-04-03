@@ -1,13 +1,13 @@
+const basePath = process.env.GITHUB_ACTIONS ? '/react-wait-for-react' : '';
+
 module.exports = {
     exportPathMap() {
         return {
             '/': { page: '/' },
         };
     },
-    assetPrefix: process.env.GITHUB_ACTIONS ? '/react-wait-for-react/' : '',
-    webpack: (config) => {
-        config.resolve.symlinks = false;
-
-        return config;
+    assetPrefix: `${basePath}/`,
+    experimental: {
+        basePath,
     },
 };
