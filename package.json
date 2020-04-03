@@ -41,8 +41,8 @@
   },
   "scripts": {
     "prebuild": "cpr src src-tmp -d && babel src/inline-script.raw.js -o src-tmp/inline-script.raw.js && terser -c -m -o src-tmp/inline-script.raw.js -- src-tmp/inline-script.raw.js",
-    "build:commonjs": "cross-env BABEL_ENV=commonjs babel src-tmp -d lib --delete-dir-on-start",
-    "build:es": "cross-env BABEL_ENV=es babel src-tmp -d es --delete-dir-on-start",
+    "build:commonjs": "BABEL_ENV=commonjs babel src-tmp -d lib --delete-dir-on-start",
+    "build:es": "BABEL_ENV=es babel src-tmp -d es --delete-dir-on-start",
     "build": "npm run build:commonjs && npm run build:es",
     "postbuild": "rimraf lib/inline-script.raw.js es/inline-script.raw.js src-tmp",
     "test": "jest",
