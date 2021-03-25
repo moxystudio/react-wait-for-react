@@ -30,8 +30,6 @@ Certain apps or pages have impactful experiences. These experiences can make the
 
 It's then often normal to preload all the required files for an uninterrupted experience. `@moxy/react-wait-for-react` is a library that makes it easy to display a spash screen with a loader before your static or server-side rendered app becomes interactive, and optionally until all the required files are loaded (via a promise). This is made possible by injecting a small inline script as part of the initial server-side rendered HTML or exported HTML.
 
-<img src="https://developers.google.com/web/fundamentals/performance/why-performance-matters/images/speed-comparison.png" alt="Performance metrics timeline" width="700" />
-
 ⚠️ You should still render the app or page contents "below" the splash screen, to keep your website SEO friendly.
 
 ## Demo
