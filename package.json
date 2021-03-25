@@ -1,6 +1,6 @@
 {
   "name": "@moxy/react-wait-for-react",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Easily render a loader while your React app is loading, optionally waiting for a promise as well",
   "main": "lib/index.js",
   "module": "es/index.js",
