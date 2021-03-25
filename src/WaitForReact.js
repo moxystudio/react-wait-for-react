@@ -68,6 +68,7 @@ export default class WaitForReact extends PureComponent {
 
     componentDidMount() {
         this.setStateThrottled = throttle(this.setState.bind(this), this.props.progressInterval, { leading: false });
+        // eslint-disable-next-line no-new-func
         this.progressDecayFn = new Function(['time'], `return (${this.props.progressDecay})(time)`);
 
         this.trackPromise();
@@ -83,6 +84,7 @@ export default class WaitForReact extends PureComponent {
             this.setStateThrottled = throttle(this.setState.bind(this), this.props.progressInterval, { leading: false });
         }
         if (prevProps.progressDecay !== this.props.progressDecay) {
+            // eslint-disable-next-line no-new-func
             this.progressDecayFn = new Function(['time'], `return (${this.props.progressDecay})(time)`);
         }
 

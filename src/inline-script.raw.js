@@ -13,8 +13,10 @@
         const { dataset } = script;
 
         const maxProgress = Number(dataset.maxProgress);
+        /* eslint-disable no-new-func */
         const applyProgress = new Function(['elements', 'progress'], `(${dataset.applyProgress})(elements, progress)`);
         const progressDecay = new Function(['time'], `return (${dataset.progressDecay})(time)`);
+        /* eslint-enable no-new-func */
         const progressInterval = Number(dataset.progressInterval);
 
         return {
